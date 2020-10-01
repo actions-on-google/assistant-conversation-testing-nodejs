@@ -1,0 +1,206 @@
+{
+  "output": {
+    "speech": [ "Welcome to Facts about Google!", " What type of facts would you like to hear?" ],
+    "text": "Welcome to Facts about Google! What type of facts would you like to hear?"
+  },
+  "diagnostics": {
+    "actionsBuilderEvents": [{
+      "eventTime": {
+        "seconds": 1595450517,
+        "nanos": 652000000
+      },
+      "executionState": {
+        "currentSceneId": "actions.scene.START_CONVERSATION"
+      },
+      "status": {
+      },
+      "userInput": {
+      }
+    }, {
+      "eventTime": "dummy",
+      "executionState": {
+        "currentSceneId": "actions.scene.START_CONVERSATION",
+        "sessionStorage": {},
+        "promptQueue": [{
+          "firstSimple": {
+            "speech": "Welcome to Facts about Google! ",
+            "text": "Welcome to Facts about Google! "
+          }
+        }]
+      },
+      "status": {
+      },
+      "intentMatch": {
+        "intentId": "actions.intent.MAIN",
+        "intentParameters": {
+          "intentParamString": {
+            "resolved": "value"
+          },
+          "intentParamInt": {
+            "resolved": 5
+          }
+        },
+        "nextSceneId": "Welcome"
+      }
+    }, {
+      "eventTime": "dummy",
+      "executionState": {
+        "currentSceneId": "Welcome",
+        "sessionStorage": {
+        },
+        "userStorage": {
+          "fields": [{
+            "key": "verificationStatus",
+            "value": {
+              "stringValue": "VERIFIED"
+            }
+          }]
+        },
+        "promptQueue": [{
+          "firstSimple": {
+            "speech": "Welcome to Facts about Google! ",
+            "text": "Welcome to Facts about Google! "
+          }
+        }]
+      },
+      "status": {
+      },
+      "onSceneEnter": {
+      }
+    }, {
+      "eventTime": "dummy",
+      "executionState": {
+        "currentSceneId": "Welcome",
+        "sessionStorage": {
+        },
+        "slots": {
+          "status": "COLLECTING",
+          "slots": {
+            "key": "factCategory",
+            "value": {
+              "mode": "REQUIRED",
+              "status": "EMPTY"
+            }
+          }
+        },
+        "userStorage": {
+          "fields": [{
+            "key": "verificationStatus",
+            "value": {
+              "stringValue": "VERIFIED"
+            }
+          }]
+        },
+        "promptQueue": [{
+          "firstSimple": {
+            "speech": "Welcome to Facts about Google! ",
+            "text": "Welcome to Facts about Google! "
+          }
+        }]
+      },
+      "status": {
+      },
+      "conditionsEvaluated": {
+        "failedConditions": {
+          "expression": "$scene.slots.status = \"FINAL\"",
+          "handler": "getFact"
+        }
+      }
+    }, {
+      "eventTime": "dummy",
+      "executionState": {
+        "currentSceneId": "Welcome",
+        "sessionStorage": {
+        },
+        "slots": {
+          "status": "COLLECTING",
+          "slots": {
+            "key": "factCategory",
+            "value": {
+              "mode": "REQUIRED",
+              "status": "EMPTY"
+            }
+          }
+        },
+        "userStorage": {
+          "fields": [{
+            "key": "verificationStatus",
+            "value": {
+              "stringValue": "VERIFIED"
+            }
+          }]
+        },
+        "promptQueue": [{
+          "firstSimple": {
+            "speech": "Welcome to Facts about Google! What type of facts would you like to hear?",
+            "text": "Welcome to Facts about Google! What type of facts would you like to hear?"
+          },
+         "suggestions": [{
+           "title": "Headquarters"
+          }, {
+           "title": "History"
+          }]
+        }]
+      },
+      "status": {
+      },
+     "slotRequested": {
+       "slot": "factCategory",
+        "prompt": {
+          "firstSimple": {
+            "speech": "Welcome to Facts about Google! What type of facts would you like to hear?",
+            "text": "Welcome to Facts about Google! What type of facts would you like to hear?"
+          },
+         "suggestions": [{
+           "title": "Headquarters"
+          }, {
+           "title": "History"
+          }]
+        }
+      }
+    }, {
+      "eventTime": "dummy",
+      "executionState": {
+        "currentSceneId": "Welcome",
+        "sessionStorage": {
+          "categoryType": "cats",
+          "factsNumber": 1,
+          "currentFactsData": {"title": "Fact fake title"}
+        },
+        "userStorage": {
+          "userCategoryType": "cats",
+          "userFactsNumber": 1
+        },
+        "householdStorage": {
+          "homeStorageParam": "home param value"
+        },
+        "slots": {
+          "status": "COLLECTING",
+          "slots": {
+            "key": "factCategory",
+            "value": {
+              "mode": "REQUIRED",
+              "status": "EMPTY"
+            }
+          }
+        },
+        "promptQueue": [{
+          "firstSimple": {
+            "speech": "Welcome to Facts about Google! What type of facts would you like to hear?",
+            "text": "Welcome to Facts about Google! What type of facts would you like to hear?"
+          },
+         "suggestions": [{
+           "title": "Headquarters"
+          }, {
+           "title": "History"
+          }]
+        }]
+      },
+      "status": {
+      },
+      "waitingUserInput": {
+      }
+    }
+  ]},
+  "conversationToken": "EosDS2o5Wk0xTndRazFQYUZOMFZUSlpT"
+}
