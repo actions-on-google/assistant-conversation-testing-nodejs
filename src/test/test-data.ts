@@ -25,15 +25,13 @@ export const EXAMPLE_SUGGESTIONS:
     [{'title': 'Headquarters'}, {'title': 'History'}];
 
 /** Example Image. */
-export const EXAMPLE_IMAGE:
-    protos.google.actions.sdk.v2.conversation.IImage = {
+export const EXAMPLE_IMAGE: protos.google.actions.sdk.v2.conversation.IImage = {
   url: 'https://developers.google.com/assistant/assistant_96.png',
   alt: 'Google Assistant logo'
 };
 
 /** Example Card. */
-export const EXAMPLE_CARD:
-    protos.google.actions.sdk.v2.conversation.ICard = {
+export const EXAMPLE_CARD: protos.google.actions.sdk.v2.conversation.ICard = {
   title: 'Card Title',
   subtitle: 'Card Subtitle',
   text: 'Card Content',
@@ -41,8 +39,7 @@ export const EXAMPLE_CARD:
 };
 
 /** Example List. */
-export const EXAMPLE_LIST:
-    protos.google.actions.sdk.v2.conversation.IList = {
+export const EXAMPLE_LIST: protos.google.actions.sdk.v2.conversation.IList = {
   title: 'List title',
   subtitle: 'List subtitle',
   items: [{key: 'ITEM_1'}, {key: 'ITEM_2'}, {key: 'ITEM_3'}, {key: 'ITEM_4'}]
@@ -57,8 +54,7 @@ export const EXAMPLE_COLLECTION:
 };
 
 /** Example Table. */
-export const EXAMPLE_TABLE:
-    protos.google.actions.sdk.v2.conversation.ITable = {
+export const EXAMPLE_TABLE: protos.google.actions.sdk.v2.conversation.ITable = {
   title: 'Table Title',
   subtitle: 'Table Subtitle',
   image: EXAMPLE_IMAGE,
@@ -71,8 +67,7 @@ export const EXAMPLE_TABLE:
 };
 
 /** Example Media Card. */
-export const EXAMPLE_MEDIA:
-    protos.google.actions.sdk.v2.conversation.IMedia = {
+export const EXAMPLE_MEDIA: protos.google.actions.sdk.v2.conversation.IMedia = {
   optionalMediaControls: [
     protos.google.actions.sdk.v2.conversation.Media.OptionalMediaControls
         .PAUSED,

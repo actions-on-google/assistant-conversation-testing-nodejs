@@ -21,13 +21,8 @@
     "lint": "gts check",
     "clean": "rm -rf dist docs && gts clean",
     "build": "tsc && rm -fr ./dist/locales && cp -r ./locales ./dist",
-    "test:git": "sh script/git-presubmit-lint.sh",
-    "test:tar": "bash script/package-contents.sh",
-    "test:ci": "yarn test && yarn test:git && yarn test:tar",
     "docs": "typedoc --options typedoc.json",
     "docs:clean": "rm -rf docs && mkdir docs && touch docs/.nojekyll && yarn docs",
-    "release": "yarn clean && yarn lint && yarn build && yarn publish && yarn release:changelog",
-    "release:changelog": "sh script/changelog.sh",
     "check": "gts check",
     "fix": "gts fix",
     "prepare": "npm run compile",
@@ -48,6 +43,9 @@
     "automated testing",
     "continuous integration"
   ],
+  "bin": {
+    "web-and-app-activity-controls": "./bin/web-and-app-activity-controls.js"
+  },
   "dependencies": {
     "@assistant/actions": "0.1.0",
     "@types/chai": "^4.1.4",
@@ -65,9 +63,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^8.0.0",
-    "@types/node": "^13.11.1",
     "@types/winston": "^2.4.4",
-    "chai": "^4.2.0",
     "gts": "^2.0.2",
     "mocha": "^8.0.1",
     "typedoc": "^0.15.0",

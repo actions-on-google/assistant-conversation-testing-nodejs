@@ -42,20 +42,14 @@ framework. You can change the report style by overriding the Mocha report style.
     const PROJECT_ID = '<ACTION_PROJECT_ID>';
     const TRIGGER_PHRASE = 'Talk to <ACTION_DISPLAY_NAME>';
 
-    const UPDATE_PREVIEW_FROM_DRAFT = true;
-    const UPDATE_PREVIEW_FROM_SUBMITTED_VERSION_NUMBER = -1;
-
     describe('Test Suite', function() {
       // Set the timeout for each test run to 60s.
       this.timeout(60000);
       let testManager;
 
-      before('Before all setup', function() {
-        testManager = new ActionsOnGoogleTestManager();
-        testManager.setupSuite(
-            PROJECT_ID,
-            UPDATE_PREVIEW_FROM_DRAFT,
-            UPDATE_PREVIEW_FROM_SUBMITTED_VERSION_NUMBER);
+      before('Before all setup', async function() {
+        testManager = new ActionsOnGoogleTestManager({ projectId: PROJECT_ID });
+        await test.writePreviewFromDraft();
         testManager.setSuiteLocale(DEFAULT_LOCALE);
         testManager.setSuiteSurface(DEFAULT_SURFACE);
       });
@@ -233,8 +227,8 @@ queryLanguage.
 ## Known issues
 
 *   Implicit invocation methods, like built-in intents, cannot be tested.
-*   Testing `NO_INPUT` events is not yet supported.
 *   Testing transactions is not yet supported.
+*   Testing `NO_INPUT` events is not supported.
 
 ## References & Issues
 + Questions? Go to [StackOverflow](https://stackoverflow.com/questions/tagged/actions-on-google) or [Assistant Developer Community on Reddit](https://www.reddit.com/r/GoogleAssistantDev/).

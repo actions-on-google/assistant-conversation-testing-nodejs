@@ -23,45 +23,48 @@ import 'mocha';
 import {protos} from '@assistant/actions';
 import {assert, expect} from 'chai';
 
-import * as consts from '../consts';
+import * as constants from '../constants';
 import {ActionsOnGoogleTestManager} from '../index';
+import {deepClone} from '../merge';
 
 import * as mockResponse1 from './mock-response1.json';
-import {EXAMPLE_CANVAS, EXAMPLE_CARD, EXAMPLE_COLLECTION, EXAMPLE_IMAGE, EXAMPLE_LIST, EXAMPLE_MEDIA, EXAMPLE_SUGGESTIONS, EXAMPLE_TABLE} from './test-data';
+import {
+  EXAMPLE_CANVAS, EXAMPLE_CARD, EXAMPLE_COLLECTION, EXAMPLE_IMAGE, EXAMPLE_LIST, EXAMPLE_MEDIA,
+  EXAMPLE_SUGGESTIONS, EXAMPLE_TABLE
+} from './test-data';
 
 // tslint:disable:only-arrow-functions
 
-describe('Library unit tests', function() {
+describe('ActionsOnGoogleTestManager', function() {
   let test: ActionsOnGoogleTestManager;
 
   /** Updates the response's content part. */
   function updatedResponseContent(
       baseResponse: protos.google.actions.sdk.v2.ISendInteractionResponse,
       updatedContent: protos.google.actions.sdk.v2.conversation.IContent) {
-    baseResponse!.output!.actionsBuilderPrompt = { content: updatedContent };
+    baseResponse!.output!.actionsBuilderPrompt = {content: updatedContent};
   }
 
   /** Initializes the latest turn response to the mock response. */
   function initLatestResponse() {
     test.latestResponse =
-        test.deepClone<protos.google.actions.sdk.v2.ISendInteractionResponse>(
+        deepClone<protos.google.actions.sdk.v2.ISendInteractionResponse>(
             mockResponse1 as
             protos.google.actions.sdk.v2.ISendInteractionResponse);
   }
 
   before('before all', function() {
-    test = new ActionsOnGoogleTestManager();
-    test.setupSuite('FAKE_PROJECT_ID');
+    test = new ActionsOnGoogleTestManager({projectId: 'FAKE_PROJECT_ID'});
   });
 
-  it('Test defaults', async function() {
+  it('should set default locale and surface', async function() {
     const newLocale = 'en-US';
     const newSurface = 'PHONE';
     assert.deepEqual(
         test.getTestInteractionMergedDefaults(),
-        consts.DEFAULT_INTERACTION_SETTING);
+        constants.DEFAULT_INTERACTION_SETTING);
     const expectedDeviceProperties =
-        consts.DEFAULT_INTERACTION_SETTING.deviceProperties;
+        constants.DEFAULT_INTERACTION_SETTING.deviceProperties;
     assert.deepOwnInclude(
         test.getTestInteractionMergedDefaults(),
         {'deviceProperties': expectedDeviceProperties});
@@ -77,8 +80,7 @@ describe('Library unit tests', function() {
         {deviceProperties: expectedDeviceProperties});
   });
 
-  // Test asserts and getters
-  it('Test Speech', async function() {
+  it('should get speech from latest response', async function() {
     initLatestResponse();
     const expectedSpeech =
         'Welcome to Facts about Google! What type of facts would you like to hear?';
@@ -104,7 +106,7 @@ describe('Library unit tests', function() {
     })).to.throw();
   });
 
-  it('Test Text', async function() {
+  it('should get text from latest response', async function() {
     initLatestResponse();
     const expectedText =
         'Welcome to Facts about Google! What type of facts would you like to hear?';
@@ -128,14 +130,14 @@ describe('Library unit tests', function() {
     })).to.throw();
   });
 
-  it('Test Intent', async function() {
+  it('should get matched intent from latest response', async function() {
     initLatestResponse();
     assert.equal(test.getIntent(), 'actions.intent.MAIN');
     expect(() => test.assertIntent('actions.intent.MAIN')).not.to.throw();
     expect(() => test.assertIntent('BAD_INTENT')).to.throw();
   });
 
-  it('Test Intent Parameter', async function() {
+  it('should get intent parameter from latest response', async function() {
     initLatestResponse();
     assert.equal(test.getIntentParameter('intentParamString'), 'value');
     assert.equal(test.getIntentParameter('intentParamInt'), 5);
@@ -153,14 +155,14 @@ describe('Library unit tests', function() {
         .to.throw();
   });
 
-  it('Test Scene', async function() {
+  it('should get current scene from latest response', async function() {
     initLatestResponse();
     assert.equal(test.getScene(), 'Welcome');
     expect(() => test.assertScene('Welcome')).not.to.throw();
     expect(() => test.assertScene('BAD_SCENE_NAME')).to.throw();
   });
 
-  it('Test Session Storage', async function() {
+  it('should get session parameters from latest response', async function() {
     initLatestResponse();
     assert.equal(test.getSessionParam('categoryType'), 'cats');
     expect(() => test.assertSessionParam('categoryType', 'cats'))
@@ -180,7 +182,7 @@ describe('Library unit tests', function() {
     })).to.throw();
   });
 
-  it('Test User Storage', async function() {
+  it('should get user parameters from latest response', async function() {
     initLatestResponse();
     assert.equal(test.getUserParam('userCategoryType'), 'cats');
     expect(() => test.assertUserParam('userCategoryType', 'cats'))
@@ -191,7 +193,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertUserParam('missingKey', 'bad')).to.throw();
   });
 
-  it('Test Home Storage', async function() {
+  it('should get home parameters from latest response', async function() {
     initLatestResponse();
     assert.equal(test.getHomeParam('homeStorageParam'), 'home param value');
     expect(() => test.assertHomeParam('homeStorageParam', 'home param value'))
@@ -200,14 +202,14 @@ describe('Library unit tests', function() {
     expect(() => test.assertHomeParam('missingKey', 'bad')).to.throw();
   });
 
-  it('Test Get Content', async function() {
+  it('should get content from latest response', async function() {
     initLatestResponse();
     const content = {card: EXAMPLE_CARD};
     updatedResponseContent(test.latestResponse!, content);
     assert.equal(test.getContent(), content);
   });
 
-  it('Test Prompt', async function() {
+  it('should get prompt from latest response', async function() {
     initLatestResponse();
     const prompt = {
       'firstSimple': {
@@ -232,7 +234,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertPrompt(prompt, true)).not.to.throw();
   });
 
-  it('Test Suggestions', async function() {
+  it('should get suggestions from latest response', async function() {
     initLatestResponse();
     assert.deepEqual(test.getSuggestions(), EXAMPLE_SUGGESTIONS);
     expect(() => test.assertSuggestions(EXAMPLE_SUGGESTIONS, true))
@@ -242,7 +244,7 @@ describe('Library unit tests', function() {
         .to.throw();
   });
 
-  it('Test Card', async function() {
+  it('should get card from latest response', async function() {
     initLatestResponse();
     updatedResponseContent(test.latestResponse!, {card: EXAMPLE_CARD});
     assert.equal(test.getCard(), EXAMPLE_CARD);
@@ -255,7 +257,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertCard({title: 'Bad Card Title'})).to.throw();
   });
 
-  it('Test Image', async function() {
+  it('should get image from latest response', async function() {
     initLatestResponse();
     updatedResponseContent(test.latestResponse!, {image: EXAMPLE_IMAGE});
     assert.equal(test.getImage(), EXAMPLE_IMAGE);
@@ -267,7 +269,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertImage({url: 'Bad URL'})).to.throw();
   });
 
-  it('Test List', async function() {
+  it('should get list from latest response', async function() {
     initLatestResponse();
     updatedResponseContent(test.latestResponse!, {list: EXAMPLE_LIST});
     assert.equal(test.getList(), EXAMPLE_LIST);
@@ -280,7 +282,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertList({title: 'Bad List Title'})).to.throw();
   });
 
-  it('Test Collection', async function() {
+  it('should get collection from latest response', async function() {
     initLatestResponse();
     updatedResponseContent(
         test.latestResponse!, {collection: EXAMPLE_COLLECTION});
@@ -300,7 +302,7 @@ describe('Library unit tests', function() {
     })).to.throw();
   });
 
-  it('Test Table', async function() {
+  it('should get table from latest response', async function() {
     initLatestResponse();
     updatedResponseContent(test.latestResponse!, {table: EXAMPLE_TABLE});
     assert.equal(test.getTable(), EXAMPLE_TABLE);
@@ -315,7 +317,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertTable({title: 'Bad Table Title'})).to.throw();
   });
 
-  it('Test Media', async function() {
+  it('should get media from latest response', async function() {
     initLatestResponse();
     updatedResponseContent(test.latestResponse!, {media: EXAMPLE_MEDIA});
     assert.equal(test.getMedia(), EXAMPLE_MEDIA);
@@ -330,7 +332,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertMedia({mediaType: 'MEDIA_STATUS_ACK'})).to.throw();
   });
 
-  it('Test Canvas Data', async function() {
+  it('should get canvas data from latest response', async function() {
     initLatestResponse();
     test.latestResponse!.output!.canvas = EXAMPLE_CANVAS;
     assert.equal(test.getCanvasData(), EXAMPLE_CANVAS!.data!);
@@ -352,7 +354,7 @@ describe('Library unit tests', function() {
     expect(() => test.assertCanvasData([{'wrong': 'Bad value'}])).to.throw();
   });
 
-  it('Test Canvas URL', async function() {
+  it('should get canvas url from latest response', async function() {
     initLatestResponse();
     test.latestResponse!.output!.canvas = EXAMPLE_CANVAS;
     expect(() => test.assertCanvasURL(EXAMPLE_CANVAS!.url)).not.to.throw();
@@ -361,14 +363,14 @@ describe('Library unit tests', function() {
     expect(() => test.assertCanvasURL('bad_url')).to.throw();
   });
 
-  it('Test Conversion Not Ended', async function() {
+  it('should detect when a conversation has not ended', async function() {
     initLatestResponse();
     assert.equal(test.getIsConversationEnded(), false);
     expect(() => test.assertConversationNotEnded()).not.to.throw();
     expect(() => test.assertConversationEnded()).to.throw();
   });
 
-  it('Test Conversion Ended', async function() {
+  it('should detect when a conversation has ended', async function() {
     initLatestResponse();
     test.latestResponse!.diagnostics!.actionsBuilderEvents!.slice(-1)[0]!
         .endConversation = true;

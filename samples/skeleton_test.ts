@@ -16,39 +16,35 @@
 
 import 'mocha';
 
-import {ActionsOnGoogleTestManager} from '../../../dist/index';
+import {ActionsOnGoogleTestManager} from '@assistant/conversation-testing';
 
 const PROJECT_ID = 'PROJECT_ID';  // Replace this with your project id.
 const TRIGGER_PHRASE =
     'Talk to my test app';  // Replace this with your action trigger phrase.
 
-const UPDATE_PREVIEW_FROM_DRAFT = true;
-const UPDATE_PREVIEW_FROM_SUBMITTED_VERSION_NUMBER = -1;
 const DEFAULT_LOCALE = 'en-US';
 const DEFAULT_SURFACE = 'SMART_DISPLAY';
 
 // tslint:disable:only-arrow-functions
 
-describe('My Action Test Suite', function() {
+describe('Action project', function() {
   // Set the timeout for each test run to 60s.
   this.timeout(60000);
   let test: ActionsOnGoogleTestManager;
 
-  before('before all', async function() {
-    test = new ActionsOnGoogleTestManager();
-    await test.setupSuite(
-        PROJECT_ID, UPDATE_PREVIEW_FROM_DRAFT,
-        UPDATE_PREVIEW_FROM_SUBMITTED_VERSION_NUMBER);
+  before('set up test suite', async function() {
+    test = new ActionsOnGoogleTestManager({ projectId: PROJECT_ID });
+    await test.writePreviewFromDraft();
     test.setSuiteLocale(DEFAULT_LOCALE);
     test.setSuiteSurface(DEFAULT_SURFACE);
   });
 
-  afterEach('post test cleans', function() {
+  afterEach('clean up test', function() {
     test.cleanUpAfterTest();
   });
 
   // Trigger test
-  it('trigger test', async function() {
+  it('should trigger action', async function() {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertIntent('actions.intent.MAIN');
   });

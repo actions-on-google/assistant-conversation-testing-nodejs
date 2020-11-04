@@ -16,7 +16,7 @@
 
 import 'mocha';
 
-import {ActionsOnGoogleTestManager} from '../../../dist/index';
+import {ActionsOnGoogleTestManager} from '@assistant/conversation-testing'
 
 const PROJECT_ID = 'PROJECT_ID';  // '__project_id__'
 const TRIGGER_PHRASE =
@@ -24,29 +24,25 @@ const TRIGGER_PHRASE =
 
 const DEFAULT_LOCALE = 'en-US';
 const DEFAULT_SURFACE = 'PHONE';
-const UPDATE_PREVIEW_FROM_DRAFT = true;
-const UPDATE_PREVIEW_FROM_SUBMITTED_VERSION_NUMBER = -1;
 
-describe('My Action Test Suite', function() {
+describe('Action project', function() {
   // Set the timeout for each test run to 60s.
   this.timeout(60000);
   let test: ActionsOnGoogleTestManager;
 
-  before('before all', async function() {
-    test = new ActionsOnGoogleTestManager();
-    await test.setupSuite(
-        PROJECT_ID, UPDATE_PREVIEW_FROM_DRAFT,
-        UPDATE_PREVIEW_FROM_SUBMITTED_VERSION_NUMBER);
+  before('setup test suite', async function() {
+    test = new ActionsOnGoogleTestManager({ projectId: PROJECT_ID });
+    await test.writePreviewFromDraft();
     test.setSuiteLocale(DEFAULT_LOCALE);
     test.setSuiteSurface(DEFAULT_SURFACE);
   });
 
-  afterEach('post test cleans', function() {
+  afterEach('clean up test', function() {
     test.cleanUpAfterTest();
   });
 
   // Happy path test
-  it('happy path', async function() {
+  it('should match letter intent, and end the conversation', async function() {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertSpeech('Welcome to the game, how are you?');
     test.assertSpeech('choose a letter please from A to Z');
@@ -64,7 +60,7 @@ describe('My Action Test Suite', function() {
   });
 
   // Decline path test
-  it('decline path', async function() {
+  it('should match main intent, and end the conversation', async function() {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertSpeech('Welcome to the game, how are you?');
     test.assertText('Welcome to the game, how are you?');
@@ -76,7 +72,7 @@ describe('My Action Test Suite', function() {
   });
 
   // Decline path test
-  it('global intent parameter', async function() {
+  it('should match letter intent, with intent parameter', async function() {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertIntent('actions.intent.MAIN');
     test.assertScene('question');
@@ -87,7 +83,7 @@ describe('My Action Test Suite', function() {
   });
 
   // Help path test on phone
-  it('help path', async function() {
+  it('should match help intent 3 times, and track count in session parameter', async function() {
     test.setTestSurface('PHONE');
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertSpeech('Welcome to the game, how are you?');
@@ -108,7 +104,7 @@ describe('My Action Test Suite', function() {
   });
 
   // Fallback request test
-  it('max no match', async function() {
+  it('should fallback three times', async function() {
     test.setTestSurface('SMART_DISPLAY');
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertIntent('actions.intent.MAIN');
@@ -125,7 +121,7 @@ describe('My Action Test Suite', function() {
   });
 
   // Intent matching test (not e2e test)
-  it('intent match testing', async function() {
+  it('should assert top matched help intent', async function() {
     await test.assertTopMatchedIntent('help', 'HELP', 2, 'en');
   });
 });

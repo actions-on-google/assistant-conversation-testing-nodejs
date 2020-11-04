@@ -21,6 +21,14 @@ import {protos, v2} from '@assistant/actions';
 
 const ACTIONS_API_PROD_ENDPOINT = 'actions.googleapis.com';
 
+/** The ActionsApiHelper config. */
+export interface ActionsApiHelperConfig {
+  /** the tested project ID. */
+  projectId: string;
+  /** optional custom actions API endpoint. */
+  actionsApiCustomEndpoint?: string;
+}
+
 /**
  * A class that implements API calls for Actions API.
  */
@@ -29,11 +37,12 @@ export class ActionsApiHelper {
   actionsSdkClient: v2.ActionsSdkClient;
   actionsTestingClient: v2.ActionsTestingClient;
 
-  constructor(projectId: string, actionsApiCustomEndpoint?: string) {
+  constructor({projectId, actionsApiCustomEndpoint = ACTIONS_API_PROD_ENDPOINT}:
+                  ActionsApiHelperConfig) {
     this.projectId = projectId;
     const options = {
       projectId,
-      apiEndpoint: actionsApiCustomEndpoint || ACTIONS_API_PROD_ENDPOINT,
+      apiEndpoint: actionsApiCustomEndpoint,
     };
     this.actionsSdkClient = new v2.ActionsSdkClient(options);
     this.actionsTestingClient = new v2.ActionsTestingClient(options);
@@ -55,7 +64,7 @@ export class ActionsApiHelper {
 
   /** Calls the 'matchIntents' API method. */
   async matchIntents(matchIntentsData:
-                             protos.google.actions.sdk.v2.IMatchIntentsRequest):
+                         protos.google.actions.sdk.v2.IMatchIntentsRequest):
       Promise<protos.google.actions.sdk.v2.IMatchIntentsResponse> {
     try {
       matchIntentsData.project = `projects/${this.projectId}`;
@@ -67,46 +76,40 @@ export class ActionsApiHelper {
     }
   }
 
-  /** Calls the 'setWebAndAppActivityControl' API method. */
-  async setWebAndAppActivityControls(enabled: boolean) {
-    try {
-      await this.actionsTestingClient.setWebAndAppActivityControl(
-        {enabled} as protos.google.actions.sdk.v2.ISetWebAndAppActivityControlRequest);
-      return;
-    } catch (err) {
-        throw new Error(`setWebAndAppActivityControl API call failed: ${err}`);
-    }
+  /** Calls the 'writePreview' API method from draft. */
+  async writePreviewFromDraft() {
+    await this._writePreview({
+      parent: `projects/${this.projectId}`,
+      previewSettings: {sandbox: {value: true}},
+      draft: {}
+    });
   }
 
-  /** Calls the 'writePreview' API method from draft or submitted version number. */
-  async writePreview(fromDraft: boolean, fromSubmittedVersionNumber = 0) {
-    const projectPath = `projects/${this.projectId}`;
-    const request: protos.google.actions.sdk.v2.IWritePreviewRequest = {
-      parent: projectPath,
-      previewSettings: {sandbox: {value: true}}
-    };
-    if (fromSubmittedVersionNumber > 0) {
-      const versionPath = `projects/${this.projectId}/versions/${fromSubmittedVersionNumber}`;
-      request.submittedVersion = {version: versionPath};
-    } else if (fromDraft) {
-      request.draft = {};
-    } else {
-      return;
-    }
-    await this._writePreview(request);
+  /** Calls the 'writePreview' API method from submitted version number. */
+  async writePreviewFromVersion(versionNumber: number) {
+    await this._writePreview({
+      parent: `projects/${this.projectId}`,
+      previewSettings: {sandbox: {value: true}},
+      submittedVersion:
+          {version: `projects/${this.projectId}/versions/${versionNumber}`}
+    });
   }
 
   /** Calls the 'writePreview' API method given a write preview request. */
-  private _writePreview(request: protos.google.actions.sdk.v2.IWritePreviewRequest) {
-    const [responsePromise, responseCallback] = this._getStreamResponsePromise();
-    const writePreviewStream = this.actionsSdkClient.writePreview(responseCallback);
+  private _writePreview(request:
+                            protos.google.actions.sdk.v2.IWritePreviewRequest) {
+    const [responsePromise, responseCallback] =
+        this._getStreamResponsePromise();
+    const writePreviewStream =
+        this.actionsSdkClient.writePreview(responseCallback);
     writePreviewStream.write(request);
     writePreviewStream.end();
     return responsePromise;
   }
 
   /** Gets a resonse promise and callback for a stream request. */
-  private _getStreamResponsePromise(): [Promise<unknown>, (err: any, resp: any) => void] {
+  private _getStreamResponsePromise():
+      [Promise<unknown>, (err: any, resp: any) => void] {
     let writeSuccess: any, writeFailure: any;
     const responsePromise = new Promise((resolve, reject) => {
       writeSuccess = resolve;
@@ -114,7 +117,7 @@ export class ActionsApiHelper {
     });
     const responseCallback = (err: any, resp: any) => {
       !err ? writeSuccess(resp) : writeFailure(err);
-    }
-    return [responsePromise, responseCallback]
+    };
+    return [responsePromise, responseCallback];
   }
 }

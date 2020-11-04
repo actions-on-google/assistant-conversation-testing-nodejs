@@ -25,7 +25,9 @@ import * as i18n from 'i18n';
 import * as yaml from 'js-yaml';
 
 import {ActionsApiHelper} from './actions-api-helper';
-import * as consts from './consts';
+import * as constants from './constants';
+import {getDeepMerge} from './merge';
+
 
 const CANNOT_BE_CALLED_BEFORE_FIRST_QUERY_MESSAGE =
     'cannot be called before first query';
@@ -34,10 +36,10 @@ const CANNOT_BE_CALLED_BEFORE_FIRST_QUERY_MESSAGE =
 // tslint:disable:no-any
 
 i18n.configure({
-  locales: consts.SUPPORTED_LOCALES,
-  fallbacks: consts.FALLBACK_LOCALES,
+  locales: constants.SUPPORTED_LOCALES,
+  fallbacks: constants.FALLBACK_LOCALES,
   directory: __dirname + '/locales',
-  defaultLocale: consts.DEFAULT_LOCALE,
+  defaultLocale: constants.DEFAULT_LOCALE,
 });
 
 /** Map that controls the assert's comparing mode. */
@@ -64,52 +66,52 @@ interface MatchIntentsTestCase {
   expectedIntent: string;
 }
 
+/** Test suite configuration interface. */
+export interface TestSuiteConfig {
+  /** the tested project ID. */
+  projectId: string;
+  /** optional override of the suite default interaction params. */
+  interactionParams?: protos.google.actions.sdk.v2.ISendInteractionRequest;
+  /** optional custom actions API endpoint. */
+  actionsApiCustomEndpoint?: string;
+}
+
 /**
  * A class implementing a testing framework wrapping manager class.
  */
 export class ActionsOnGoogleTestManager {
-  actionsApiHelper: ActionsApiHelper|null = null;
+  actionsApiHelper: ActionsApiHelper;
   latestResponse: protos.google.actions.sdk.v2.ISendInteractionResponse|null =
       null;
   suiteInteractionDefaults:
-      protos.google.actions.sdk.v2.ISendInteractionRequest = {};
+      protos.google.actions.sdk.v2.ISendInteractionRequest = constants.DEFAULT_INTERACTION_SETTING;
   testInteractionDefaults:
       protos.google.actions.sdk.v2.ISendInteractionRequest = {};
   lastUserQuery: string|null|undefined = null;
 
   /**
    * Sets up all the needed objects and settings of a Suite.
-   * Setup the defaults, the Auth settings and
-   * calls action preview write if needed.
    */
-  async setupSuite(
-      projectId: string, updatePreviewFromDraft = false,
-      updatePreviewFromVersionNumber = -1,
-      interactionParams:
-          protos.google.actions.sdk.v2.ISendInteractionRequest = {},
-      actionsApiCustomEndpoint?: string) {
-    this.suiteInteractionDefaults = consts.DEFAULT_INTERACTION_SETTING;
+  constructor({projectId, interactionParams = {}, actionsApiCustomEndpoint}:
+                  TestSuiteConfig) {
     this.updateSuiteInteractionDefaults(interactionParams);
     this.cleanUpAfterTest();
-    if (!this.actionsApiHelper) {
-      this.actionsApiHelper = new ActionsApiHelper(projectId, actionsApiCustomEndpoint);
-    }
-    await this.actionsApiHelper!.writePreview(
-        updatePreviewFromDraft, updatePreviewFromVersionNumber);
+    this.actionsApiHelper =
+        new ActionsApiHelper({projectId, actionsApiCustomEndpoint});
   }
 
   /**
    * Cleans up the test scenario temporary artifacts. Should run after each
    * test scenario.
    */
-  async cleanUpAfterTest() {
+  cleanUpAfterTest() {
     this.lastUserQuery = null;
     this.latestResponse = null;
     this.testInteractionDefaults = {};
   }
 
   /** Send a query to your action */
-  async sendQuery(queryText: string):
+  sendQuery(queryText: string):
       Promise<protos.google.actions.sdk.v2.ISendInteractionResponse> {
     console.info(`--- sendQuery called with '${queryText}'`);
     return this.sendInteraction({input: {query: queryText}});
@@ -119,38 +121,40 @@ export class ActionsOnGoogleTestManager {
   async sendInteraction(
       interactionParams: protos.google.actions.sdk.v2.ISendInteractionRequest):
       Promise<protos.google.actions.sdk.v2.ISendInteractionResponse> {
-    assert.isDefined(
-        this.actionsApiHelper,
-        `Please make sure to call test.setupSuite at the suite 'before' section.`);
-    const interactionMergeParams = this.getDeepMerge(
+    const interactionMergeParams = getDeepMerge(
         this.getTestInteractionMergedDefaults(), interactionParams);
     // Set the conversation token - if not the first query
     if (this.latestResponse) {
       assert.isFalse(
           this.getIsConversationEnded(),
           'Conversation ended unexpectedly in previous query.');
-      interactionMergeParams[consts.TOKEN_FIELD_NAME] =
-          this.latestResponse[consts.TOKEN_FIELD_NAME];
+      interactionMergeParams[constants.TOKEN_FIELD_NAME] =
+          this.latestResponse[constants.TOKEN_FIELD_NAME];
     }
     this.lastUserQuery = interactionMergeParams.input!['query'];
-    this.latestResponse = await this.actionsApiHelper!.sendInteraction(
-        interactionMergeParams);
+    this.latestResponse =
+        await this.actionsApiHelper.sendInteraction(interactionMergeParams);
     this.validateSendInteractionResponse(this.latestResponse);
     return this.latestResponse!;
   }
 
-  /** Enable/Disable Web and Activity Controls. */
-  async setWebAndAppActivityControls(enabled: boolean) {
-    assert.isDefined(
-        this.actionsApiHelper,
-        `Please make sure to call test.setupSuite at the suite 'before' section.`);
-    return await this.actionsApiHelper!.setWebAndAppActivityControls(enabled);
+  /** Send a 'stop' query, to stop/exit the action. */
+  sendStop() {
+    return this.sendQuery(this.getStopQuery());
   }
 
-  /** Send a 'stop' query, to stop/exit the action. */
-  async sendStop():
-      Promise<protos.google.actions.sdk.v2.ISendInteractionResponse> {
-    return this.sendQuery(this.getStopQuery());
+  /** Calls the 'writePreview' API method from draft. */
+  async writePreviewFromDraft() {
+    console.info(`Starting writePreview From Draft`);
+    await this.actionsApiHelper.writePreviewFromDraft();
+    console.info(`writePreview From Draft completed`);
+  }
+
+  /** Calls the 'writePreview' API method from submitted version number. */
+  async writePreviewFromVersion(versionNumber: number) {
+    console.info(`Starting writePreview From Version ${versionNumber}`);
+    await this.actionsApiHelper.writePreviewFromVersion(versionNumber);
+    console.info(`writePreview From Version completed`);
   }
 
   // -------------- Update/Set query params
@@ -164,7 +168,7 @@ export class ActionsOnGoogleTestManager {
   updateSuiteInteractionDefaults(
       interactionParams: protos.google.actions.sdk.v2.ISendInteractionRequest) {
     this.suiteInteractionDefaults =
-        this.getDeepMerge(this.suiteInteractionDefaults, interactionParams);
+        getDeepMerge(this.suiteInteractionDefaults, interactionParams);
   }
 
   // Update/Set query params
@@ -213,13 +217,13 @@ export class ActionsOnGoogleTestManager {
   updateTestInteractionDefaults(
       interactionParams: protos.google.actions.sdk.v2.ISendInteractionRequest) {
     this.testInteractionDefaults =
-        this.getDeepMerge(this.testInteractionDefaults, interactionParams);
+        getDeepMerge(this.testInteractionDefaults, interactionParams);
   }
 
   /** Returns the test scenario interaction defaults. */
   getTestInteractionMergedDefaults():
       protos.google.actions.sdk.v2.ISendInteractionRequest {
-    return this.getDeepMerge(
+    return getDeepMerge(
         this.suiteInteractionDefaults, this.testInteractionDefaults);
   }
 
@@ -637,12 +641,9 @@ export class ActionsOnGoogleTestManager {
   /** Gets the intents for the checked query using the matchIntents API call. */
   async getMatchIntents(query: string, queryLanguage: string):
       Promise<protos.google.actions.sdk.v2.IMatchIntentsResponse> {
-    assert.isDefined(
-        this.actionsApiHelper,
-        `Please make sure to call test.setupSuite at the suite 'before' section.`);
     const locale = queryLanguage ||
         this.getTestInteractionMergedDefaults().deviceProperties!.locale!;
-    return await this.actionsApiHelper!.matchIntents({locale, query});
+    return this.actionsApiHelper.matchIntents({locale, query});
   }
 
   /** Gets the matched intents' names using the matchIntents API call. */
@@ -760,7 +761,7 @@ export class ActionsOnGoogleTestManager {
         `getScene ${CANNOT_BE_CALLED_BEFORE_FIRST_QUERY_MESSAGE}`)
         .to.exist;
     return this.getExecutionState(checkedResponse!)?.currentSceneId ||
-        consts.UNCHANGED_SCENE;
+        constants.UNCHANGED_SCENE;
   }
 
   /** Gets the Prompt. */
@@ -977,7 +978,8 @@ export class ActionsOnGoogleTestManager {
 
   /** Updates the current locale for the i18n util functions. */
   private updateCurrentLocale(locale: string) {
-    if (consts.SUPPORTED_LOCALES.concat(Object.keys(consts.FALLBACK_LOCALES))
+    if (constants.SUPPORTED_LOCALES
+            .concat(Object.keys(constants.FALLBACK_LOCALES))
             .indexOf(locale) === -1) {
       this.throwError(`The provided locale '${
           locale}' is not a supported 'Actions On Google' locale.`);
@@ -1038,51 +1040,6 @@ export class ActionsOnGoogleTestManager {
   throwError(errorStr: string) {
     console.error(errorStr + '\n  During user query: ' + this.lastUserQuery);
     throw new Error(errorStr + '\n  During user query: ' + this.lastUserQuery);
-  }
-
-  /**
-   * Returns a clone of the given source object with all its fields recursively
-   * cloned.
-   */
-  deepClone<T>(source: T): T {
-    return this.unprotectedDeepMerge<T>({} as T, source);
-  }
-
-  /**
-   * Merges target object with the base object recursively and returns newly
-   * created object. The values of the target object have priority over the base
-   * values.
-   *
-   * Functions, Map, Set, Arrays or any other 'non-plain' JSON objects are
-   * copied by reference. Plain JSON objects not found in the 'partial' are also
-   * copied by reference.
-   */
-  private getDeepMerge<T>(base: T, target: T): T {
-    return this.unprotectedDeepMerge<T>(this.deepClone<T>(base), target);
-  }
-
-  /**
-   * Merges target object with the base object recursively and returns newly
-   * created object.
-   * Unlike getDeepMerge This merge does not protected copies of the 'base',
-   * and is only for internal usage by the getDeepMerge.
-   */
-  private unprotectedDeepMerge<T>(base: T, target: T): T {
-    if (!this.isPlainObject(base) || !this.isPlainObject(target)) {
-      return target;
-    }
-    const result = {...base};
-    for (const key of Object.keys(target) as Array<keyof T>) {
-      const baseValue = base[key];
-      const partialValue = target[key];
-      result[key] = this.getDeepMerge(baseValue, partialValue);
-    }
-    return result;
-  }
-
-  /** Checks if the object is a plain JSON object. */
-  private isPlainObject(obj: unknown): obj is object {
-    return !!obj && typeof obj === 'object' && obj!.constructor === Object;
   }
 
   /** Gets the text of 'stop' query in the requested locale. */
