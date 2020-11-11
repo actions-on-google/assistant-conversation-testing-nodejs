@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  *
  */
+/* eslint-disable  node/no-unpublished-import */
+/* eslint-disable  prefer-arrow-callback */
 
 import 'mocha';
-
 import {ActionsOnGoogleTestManager} from '@assistant/conversation-testing';
 
 const PROJECT_ID = 'PROJECT_ID';  // Replace this with your project id.
@@ -25,9 +26,7 @@ const TRIGGER_PHRASE =
 const DEFAULT_LOCALE = 'en-US';
 const DEFAULT_SURFACE = 'SMART_DISPLAY';
 
-// tslint:disable:only-arrow-functions
-
-describe('Action project', function() {
+describe('Action project', function () {
   // Set the timeout for each test run to 60s.
   this.timeout(60000);
   let test: ActionsOnGoogleTestManager;
@@ -39,12 +38,12 @@ describe('Action project', function() {
     test.setSuiteSurface(DEFAULT_SURFACE);
   });
 
-  afterEach('clean up test', function() {
+  afterEach('clean up test', function () {
     test.cleanUpAfterTest();
   });
 
   // Trigger test
-  it('should trigger action', async function() {
+  it('should trigger action', async function () {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertIntent('actions.intent.MAIN');
   });

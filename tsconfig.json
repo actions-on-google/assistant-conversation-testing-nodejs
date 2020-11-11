@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "./dist",
+    "rootDir": "src/",
+    "outDir": "dist",
     "allowSyntheticDefaultImports": false,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -13,6 +14,7 @@
     "esModuleInterop": true,
   },
   "include": [
-    "src/**/*",
-  ]
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ],
 }

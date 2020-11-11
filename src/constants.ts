@@ -24,9 +24,26 @@ import {protos} from '@assistant/actions';
  * fallback.
  */
 export const SUPPORTED_LOCALES = [
-  'en-US', 'fr-FR', 'ja-JP', 'de-DE', 'ko-KR', 'es-ES', 'pt-BR',
-  'it-IT', 'ru-RU', 'hi-IN', 'th-TH', 'id-ID', 'da-DK', 'no-NO',
-  'nl-NL', 'sv-SE', 'tr-TR', 'pl-PL', 'zh-HK', 'zh-TW',
+  'en-US',
+  'fr-FR',
+  'ja-JP',
+  'de-DE',
+  'ko-KR',
+  'es-ES',
+  'pt-BR',
+  'it-IT',
+  'ru-RU',
+  'hi-IN',
+  'th-TH',
+  'id-ID',
+  'da-DK',
+  'no-NO',
+  'nl-NL',
+  'sv-SE',
+  'tr-TR',
+  'pl-PL',
+  'zh-HK',
+  'zh-TW',
 ];
 
 /** Fallback locales mapping for i18n configuration. */
@@ -49,9 +66,9 @@ export const FALLBACK_LOCALES = {
 /** The default library locale. */
 export const DEFAULT_LOCALE = SUPPORTED_LOCALES[0];
 /** The default library surface. */
-export const DEFAULT_SURFACE: string = 'PHONE';
+export const DEFAULT_SURFACE = 'PHONE';
 /** The default library user input type. */
-export const DEFAULT_INPUT_TYPE: string = 'VOICE';
+export const DEFAULT_INPUT_TYPE = 'VOICE';
 /** The default library longitude. */
 export const DEFAULT_LOCATION_LONG = 37.422;
 /** The default library latitude . */
@@ -61,22 +78,21 @@ export const DEFAULT_LOCATION_LAT = -122.084;
 export const DEFAULT_TIMEZONE = 'America/Los_Angeles';
 
 /** The library's interaction defaults. */
-export const DEFAULT_INTERACTION_SETTING:
-    protos.google.actions.sdk.v2.ISendInteractionRequest = {
+export const DEFAULT_INTERACTION_SETTING: protos.google.actions.sdk.v2.ISendInteractionRequest = {
   input: {
-    type: DEFAULT_INPUT_TYPE as
-        keyof typeof protos.google.actions.sdk.v2.UserInput.InputType
+    type: DEFAULT_INPUT_TYPE as keyof typeof protos.google.actions.sdk.v2.UserInput.InputType,
   },
   deviceProperties: {
     locale: DEFAULT_LOCALE,
-    surface: DEFAULT_SURFACE as
-        keyof typeof protos.google.actions.sdk.v2.DeviceProperties.Surface,
+    surface: DEFAULT_SURFACE as keyof typeof protos.google.actions.sdk.v2.DeviceProperties.Surface,
     timeZone: DEFAULT_TIMEZONE,
     location: {
-      coordinates:
-          {latitude: DEFAULT_LOCATION_LAT, longitude: DEFAULT_LOCATION_LONG}
-    }
-  }
+      coordinates: {
+        latitude: DEFAULT_LOCATION_LAT,
+        longitude: DEFAULT_LOCATION_LONG,
+      },
+    },
+  },
 };
 
 /** Conversation token field name. */

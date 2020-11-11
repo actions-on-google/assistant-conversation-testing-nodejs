@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 /**
  * @fileoverview Implementation of API calls to the Actions API.
  */
@@ -37,8 +38,10 @@ export class ActionsApiHelper {
   actionsSdkClient: v2.ActionsSdkClient;
   actionsTestingClient: v2.ActionsTestingClient;
 
-  constructor({projectId, actionsApiCustomEndpoint = ACTIONS_API_PROD_ENDPOINT}:
-                  ActionsApiHelperConfig) {
+  constructor({
+    projectId,
+    actionsApiCustomEndpoint = ACTIONS_API_PROD_ENDPOINT,
+  }: ActionsApiHelperConfig) {
     this.projectId = projectId;
     const options = {
       projectId,
@@ -50,12 +53,13 @@ export class ActionsApiHelper {
 
   /** Calls the 'sendInteraction' API method. */
   async sendInteraction(
-      interactionData: protos.google.actions.sdk.v2.ISendInteractionRequest):
-      Promise<protos.google.actions.sdk.v2.ISendInteractionResponse> {
+    interactionData: protos.google.actions.sdk.v2.ISendInteractionRequest
+  ): Promise<protos.google.actions.sdk.v2.ISendInteractionResponse> {
     try {
       interactionData.project = `projects/${this.projectId}`;
-      const res =
-          await this.actionsTestingClient.sendInteraction(interactionData);
+      const res = await this.actionsTestingClient.sendInteraction(
+        interactionData
+      );
       return res[0] as protos.google.actions.sdk.v2.ISendInteractionResponse;
     } catch (err) {
       throw new Error(`sendInteraction API call failed: ${err}`);
@@ -63,13 +67,14 @@ export class ActionsApiHelper {
   }
 
   /** Calls the 'matchIntents' API method. */
-  async matchIntents(matchIntentsData:
-                         protos.google.actions.sdk.v2.IMatchIntentsRequest):
-      Promise<protos.google.actions.sdk.v2.IMatchIntentsResponse> {
+  async matchIntents(
+    matchIntentsData: protos.google.actions.sdk.v2.IMatchIntentsRequest
+  ): Promise<protos.google.actions.sdk.v2.IMatchIntentsResponse> {
     try {
       matchIntentsData.project = `projects/${this.projectId}`;
-      const res =
-          await this.actionsTestingClient.matchIntents(matchIntentsData);
+      const res = await this.actionsTestingClient.matchIntents(
+        matchIntentsData
+      );
       return res[0] as protos.google.actions.sdk.v2.IMatchIntentsResponse;
     } catch (err) {
       throw new Error(`matchIntents API call failed: ${err}`);
@@ -81,7 +86,7 @@ export class ActionsApiHelper {
     await this._writePreview({
       parent: `projects/${this.projectId}`,
       previewSettings: {sandbox: {value: true}},
-      draft: {}
+      draft: {},
     });
   }
 
@@ -90,26 +95,33 @@ export class ActionsApiHelper {
     await this._writePreview({
       parent: `projects/${this.projectId}`,
       previewSettings: {sandbox: {value: true}},
-      submittedVersion:
-          {version: `projects/${this.projectId}/versions/${versionNumber}`}
+      submittedVersion: {
+        version: `projects/${this.projectId}/versions/${versionNumber}`,
+      },
     });
   }
 
   /** Calls the 'writePreview' API method given a write preview request. */
-  private _writePreview(request:
-                            protos.google.actions.sdk.v2.IWritePreviewRequest) {
-    const [responsePromise, responseCallback] =
-        this._getStreamResponsePromise();
-    const writePreviewStream =
-        this.actionsSdkClient.writePreview(responseCallback);
+  private _writePreview(
+    request: protos.google.actions.sdk.v2.IWritePreviewRequest
+  ) {
+    const [
+      responsePromise,
+      responseCallback,
+    ] = this._getStreamResponsePromise();
+    const writePreviewStream = this.actionsSdkClient.writePreview(
+      responseCallback
+    );
     writePreviewStream.write(request);
     writePreviewStream.end();
     return responsePromise;
   }
 
   /** Gets a resonse promise and callback for a stream request. */
-  private _getStreamResponsePromise():
-      [Promise<unknown>, (err: any, resp: any) => void] {
+  private _getStreamResponsePromise(): [
+    Promise<unknown>,
+    (err: any, resp: any) => void
+  ] {
     let writeSuccess: any, writeFailure: any;
     const responsePromise = new Promise((resolve, reject) => {
       writeSuccess = resolve;

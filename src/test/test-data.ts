@@ -14,20 +14,22 @@
  * limitations under the License.
  *
  */
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 /**
  * @fileoverview Test data used by the library unit tests.
  */
 import {protos} from '@assistant/actions';
 
 /** Example Suggestions. */
-export const EXAMPLE_SUGGESTIONS:
-    protos.google.actions.sdk.v2.conversation.ISuggestion[] =
-    [{'title': 'Headquarters'}, {'title': 'History'}];
+export const EXAMPLE_SUGGESTIONS: protos.google.actions.sdk.v2.conversation.ISuggestion[] = [
+  {title: 'Headquarters'},
+  {title: 'History'},
+];
 
 /** Example Image. */
 export const EXAMPLE_IMAGE: protos.google.actions.sdk.v2.conversation.IImage = {
   url: 'https://developers.google.com/assistant/assistant_96.png',
-  alt: 'Google Assistant logo'
+  alt: 'Google Assistant logo',
 };
 
 /** Example Card. */
@@ -35,22 +37,21 @@ export const EXAMPLE_CARD: protos.google.actions.sdk.v2.conversation.ICard = {
   title: 'Card Title',
   subtitle: 'Card Subtitle',
   text: 'Card Content',
-  image: EXAMPLE_IMAGE
+  image: EXAMPLE_IMAGE,
 };
 
 /** Example List. */
 export const EXAMPLE_LIST: protos.google.actions.sdk.v2.conversation.IList = {
   title: 'List title',
   subtitle: 'List subtitle',
-  items: [{key: 'ITEM_1'}, {key: 'ITEM_2'}, {key: 'ITEM_3'}, {key: 'ITEM_4'}]
+  items: [{key: 'ITEM_1'}, {key: 'ITEM_2'}, {key: 'ITEM_3'}, {key: 'ITEM_4'}],
 };
 
 /** Example Collection. */
-export const EXAMPLE_COLLECTION:
-    protos.google.actions.sdk.v2.conversation.ICollection = {
+export const EXAMPLE_COLLECTION: protos.google.actions.sdk.v2.conversation.ICollection = {
   title: 'Collection Title',
   subtitle: 'Collection subtitle',
-  items: [{key: 'ITEM_1'}, {key: 'ITEM_2'}, {key: 'ITEM_3'}, {key: 'ITEM_4'}]
+  items: [{key: 'ITEM_1'}, {key: 'ITEM_2'}, {key: 'ITEM_3'}, {key: 'ITEM_4'}],
 };
 
 /** Example Table. */
@@ -62,7 +63,7 @@ export const EXAMPLE_TABLE: protos.google.actions.sdk.v2.conversation.ITable = {
   rows: [
     {cells: [{text: 'A1'}, {text: 'B1'}, {text: 'C1'}]},
     {cells: [{text: 'A2'}, {text: 'B2'}, {text: 'C2'}]},
-    {cells: [{text: 'A3'}, {text: 'B3'}, {text: 'C3'}]}
+    {cells: [{text: 'A3'}, {text: 'B3'}, {text: 'C3'}]},
   ],
 };
 
@@ -70,26 +71,27 @@ export const EXAMPLE_TABLE: protos.google.actions.sdk.v2.conversation.ITable = {
 export const EXAMPLE_MEDIA: protos.google.actions.sdk.v2.conversation.IMedia = {
   optionalMediaControls: [
     protos.google.actions.sdk.v2.conversation.Media.OptionalMediaControls
-        .PAUSED,
+      .PAUSED,
     protos.google.actions.sdk.v2.conversation.Media.OptionalMediaControls
-        .STOPPED
+      .STOPPED,
   ],
-  mediaObjects: [{
-    name: 'Media name',
-    description: 'Media description',
-    url: 'https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg',
-    image: {large: EXAMPLE_IMAGE}
-  }],
-  mediaType: 'AUDIO'
+  mediaObjects: [
+    {
+      name: 'Media name',
+      description: 'Media description',
+      url: 'https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg',
+      image: {large: EXAMPLE_IMAGE},
+    },
+  ],
+  mediaType: 'AUDIO',
 };
 
 /** Example Canvas Response. */
-export const EXAMPLE_CANVAS:
-    protos.google.actions.sdk.v2.conversation.ICanvas = {
+export const EXAMPLE_CANVAS: protos.google.actions.sdk.v2.conversation.ICanvas = {
   url: 'https://canvas.url',
   data: [
-    {'elem1Key1': 'value', 'elem1Key2': 'value2'} as any,
-    {'elem2Key1': 'value2'} as any
+    {elem1Key1: 'value', elem1Key2: 'value2'} as any,
+    {elem2Key1: 'value2'} as any,
   ],
-  suppressMic: true
+  suppressMic: true,
 };

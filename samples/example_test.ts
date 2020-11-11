@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  *
  */
+/* eslint-disable  node/no-unpublished-import */
+/* eslint-disable  prefer-arrow-callback */
 
 import 'mocha';
-
-import {ActionsOnGoogleTestManager} from '@assistant/conversation-testing'
+import {ActionsOnGoogleTestManager} from '@assistant/conversation-testing';
 
 const PROJECT_ID = 'PROJECT_ID';  // '__project_id__'
 const TRIGGER_PHRASE =
@@ -25,7 +26,7 @@ const TRIGGER_PHRASE =
 const DEFAULT_LOCALE = 'en-US';
 const DEFAULT_SURFACE = 'PHONE';
 
-describe('Action project', function() {
+describe('Action project', function () {
   // Set the timeout for each test run to 60s.
   this.timeout(60000);
   let test: ActionsOnGoogleTestManager;
@@ -37,12 +38,12 @@ describe('Action project', function() {
     test.setSuiteSurface(DEFAULT_SURFACE);
   });
 
-  afterEach('clean up test', function() {
+  afterEach('clean up test', function () {
     test.cleanUpAfterTest();
   });
 
   // Happy path test
-  it('should match letter intent, and end the conversation', async function() {
+  it('should match letter intent, and end the conversation', async function () {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertSpeech('Welcome to the game, how are you?');
     test.assertSpeech('choose a letter please from A to Z');
@@ -51,8 +52,8 @@ describe('Action project', function() {
     test.assertScene('question');
     await test.sendQuery('letter C');
     test.assertSpeech(['Good choice!', 'Great choice!']);
-    test.assertCanvasData([{'letter': 'C'}]);
-    test.assertCanvasData([{'letter': 'C'}], true);
+    test.assertCanvasData([{letter: 'C'}]);
+    test.assertCanvasData([{letter: 'C'}], true);
     test.assertIntent('LETTER');
     test.assertUserParam('alphabets', 'C');
     await test.sendStop();
@@ -60,7 +61,7 @@ describe('Action project', function() {
   });
 
   // Decline path test
-  it('should match main intent, and end the conversation', async function() {
+  it('should match main intent, and end the conversation', async function () {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertSpeech('Welcome to the game, how are you?');
     test.assertText('Welcome to the game, how are you?');
@@ -72,7 +73,7 @@ describe('Action project', function() {
   });
 
   // Decline path test
-  it('should match letter intent, with intent parameter', async function() {
+  it('should match letter intent, with intent parameter', async function () {
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertIntent('actions.intent.MAIN');
     test.assertScene('question');
@@ -83,7 +84,7 @@ describe('Action project', function() {
   });
 
   // Help path test on phone
-  it('should match help intent 3 times, and track count in session parameter', async function() {
+  it('should match help intent 3 times, and track count in session parameter', async function () {
     test.setTestSurface('PHONE');
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertSpeech('Welcome to the game, how are you?');
@@ -104,24 +105,24 @@ describe('Action project', function() {
   });
 
   // Fallback request test
-  it('should fallback three times', async function() {
+  it('should fallback three times', async function () {
     test.setTestSurface('SMART_DISPLAY');
     await test.sendQuery(TRIGGER_PHRASE);
     test.assertIntent('actions.intent.MAIN');
     test.assertScene('question');
     await test.sendQuery('random request');
     test.assertIntent('actions.intent.NO_MATCH_1');
-    test.assertSpeech('Sorry, I didn\'t catch that. Can you try again?');
+    test.assertSpeech("Sorry, I didn't catch that. Can you try again?");
     await test.sendQuery('random request');
     test.assertIntent('actions.intent.NO_MATCH_2');
-    test.assertSpeech('Sorry, I didn\'t catch that. Can you try again?');
+    test.assertSpeech("Sorry, I didn't catch that. Can you try again?");
     await test.sendQuery('random request');
     test.assertIntent('actions.intent.NO_MATCH_FINAL');
     test.assertConversationEnded();
   });
 
   // Intent matching test (not e2e test)
-  it('should assert top matched help intent', async function() {
+  it('should assert top matched help intent', async function () {
     await test.assertTopMatchedIntent('help', 'HELP', 2, 'en');
   });
 });

@@ -26,7 +26,8 @@
     "check": "gts check",
     "fix": "gts fix",
     "prepare": "npm run compile",
-    "pretest": "npm run compile"
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
   },
   "repository": {
     "type": "git",
@@ -64,9 +65,10 @@
   "devDependencies": {
     "@types/mocha": "^8.0.0",
     "@types/winston": "^2.4.4",
-    "gts": "^2.0.2",
+    "gts": "^3.0.2",
     "mocha": "^8.0.1",
     "typedoc": "^0.15.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "@types/node": "^13.11.1"
   }
 }
