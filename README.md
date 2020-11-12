@@ -1,4 +1,4 @@
-# Actions Testing API Library
+# Assistant Conversation Testing Library
 
 This library provides an easy way to write automated tests for your Action. The library wraps the [Actions API](https://developers.google.com/assistant/actions/api), enabling you to define a test suite, send queries to your Action, and make assertions on the output to verify information specific to your Action's conversational state.
 
