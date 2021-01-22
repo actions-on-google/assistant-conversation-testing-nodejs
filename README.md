@@ -49,7 +49,7 @@ framework. You can change the report style by overriding the Mocha report style.
 
       before('Before all setup', async function() {
         testManager = new ActionsOnGoogleTestManager({ projectId: PROJECT_ID });
-        await test.writePreviewFromDraft();
+        await testManager.writePreviewFromDraft();
         testManager.setSuiteLocale(DEFAULT_LOCALE);
         testManager.setSuiteSurface(DEFAULT_SURFACE);
       });
