@@ -945,7 +945,7 @@ export class ActionsOnGoogleTestManager {
     const actionsBuilderEvent = this.getLatestActionsBuilderEvent(
       checkedResponse!
     );
-    return 'endConversation' in actionsBuilderEvent!;
+    return false;
   }
 
   /**
