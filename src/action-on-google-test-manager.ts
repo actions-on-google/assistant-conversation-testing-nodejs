@@ -62,6 +62,54 @@ interface MatchIntentsTestCase {
   expectedIntent: string;
 }
 
+// boolValue, numberValue, stringValue, nullValue.
+type IValueSimple = boolean | number | string | null;
+
+// Same as above but also listValue and structValue.
+// Because of the modes of input, we can assume that the type is not infinitely nested.
+type IValueType = IValueSimple | IValueSimple[] | Record<string, IValueSimple>;
+
+/**
+ * Obtains the typed-result from a struct field, recursively if needed
+ *
+ * @param resolvedField Struct field
+ */
+function getValueFromField(
+  resolvedField: protos.google.protobuf.IValue
+): IValueType {
+  if ('boolValue' in resolvedField) {
+    return resolvedField.boolValue!;
+  }
+  if ('numberValue' in resolvedField) {
+    return resolvedField.numberValue!;
+  }
+  if ('stringValue' in resolvedField) {
+    return resolvedField.stringValue!;
+  }
+  if ('nullValue' in resolvedField) {
+    return resolvedField.nullValue!;
+  }
+  if ('listValue' in resolvedField) {
+    // Recursively process listValues
+    const listValue = resolvedField.listValue!;
+    const list: IValueSimple[] = [];
+    listValue.values?.forEach(value => {
+      list.push(getValueFromField(value) as IValueSimple);
+    });
+    return list;
+  }
+  if ('structValue' in resolvedField) {
+    const structValue = resolvedField.structValue!;
+    const entries = Object.entries(structValue.fields!);
+    const map: Record<string, IValueSimple> = {};
+    entries.forEach(([key, value]) => {
+      map[key] = getValueFromField(value) as IValueSimple;
+    });
+    return map;
+  }
+  return null;
+}
+
 /** Test suite configuration interface. */
 export interface TestSuiteConfig {
   /** the tested project ID. */
@@ -826,7 +874,10 @@ export class ActionsOnGoogleTestManager {
       parameterName in intentMatch!.intentParameters! &&
       'resolved' in intentMatch!.intentParameters[parameterName]!
     ) {
-      return intentMatch!.intentParameters[parameterName]!.resolved;
+      const resolvedField = intentMatch!.intentParameters[parameterName]!
+        .resolved!;
+      // Now obtain the canonical value
+      return getValueFromField(resolvedField);
     }
     return null;
   }
@@ -965,9 +1016,11 @@ export class ActionsOnGoogleTestManager {
     if (
       executionState &&
       'sessionStorage' in executionState &&
-      name in executionState.sessionStorage!
+      name in executionState.sessionStorage!.fields!
     ) {
-      value = (executionState.sessionStorage as any)[name];
+      const resolvedField = executionState.sessionStorage!.fields![name];
+      // Now obtain the canonical value
+      value = getValueFromField(resolvedField);
     }
     return value;
   }
@@ -989,9 +1042,11 @@ export class ActionsOnGoogleTestManager {
     if (
       executionState &&
       'userStorage' in executionState &&
-      name in executionState.userStorage!
+      name in executionState.userStorage!.fields!
     ) {
-      value = (executionState.userStorage as any)[name];
+      const resolvedField = executionState.userStorage!.fields![name];
+      // Now obtain the canonical value
+      value = getValueFromField(resolvedField);
     }
     return value;
   }
@@ -1013,9 +1068,11 @@ export class ActionsOnGoogleTestManager {
     if (
       executionState &&
       'householdStorage' in executionState &&
-      name in executionState.householdStorage!
+      name in executionState.householdStorage!.fields!
     ) {
-      value = (executionState.householdStorage as any)[name];
+      const resolvedField = executionState.householdStorage!.fields![name];
+      // Now obtain the canonical value
+      value = getValueFromField(resolvedField);
     }
     return value;
   }

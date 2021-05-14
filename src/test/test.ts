@@ -29,7 +29,7 @@ import * as constants from '../constants';
 import {ActionsOnGoogleTestManager} from '../index';
 import {deepClone} from '../merge';
 
-import * as mockResponse1 from './mock-response1.json';
+import mockResponse1 from './mock-response1';
 import {
   EXAMPLE_CANVAS,
   EXAMPLE_CARD,
@@ -54,9 +54,9 @@ describe('ActionsOnGoogleTestManager', function () {
 
   /** Initializes the latest turn response to the mock response. */
   function initLatestResponse() {
-    test.latestResponse = deepClone<
-      protos.google.actions.sdk.v2.ISendInteractionResponse
-    >(mockResponse1 as protos.google.actions.sdk.v2.ISendInteractionResponse);
+    test.latestResponse = deepClone<protos.google.actions.sdk.v2.ISendInteractionResponse>(
+      mockResponse1 as protos.google.actions.sdk.v2.ISendInteractionResponse
+    );
   }
 
   before('before all', function () {
