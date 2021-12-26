@@ -18,9 +18,9 @@ npm install @assistant/conversation-testing --save
     1. If the Action API is not enabled, search for *"Actions API"* and click **Enable**.
 1.  Create a Service Account key:
     1. Visit the [Google Cloud console credentials page](https://console.developers.google.com/apis/credentials) and select your project from the **Select a project** dropdown.
-    1. In the "Create credentials" click "Service account".
+    1. In the "Service Accounts" click on the "App Engine default service account" service account.
     1.  Enter a service account name and click **Create**.
-    1.  From the **Select a role** dropdown, select **Actions > Actions Admin**.
+    1.  From the **Select a role** dropdown, select **Project > Owner**.
     1.  Click **Continue**.
     1.  Click **ADD KEY**, then select **Create new key**, then press **CREATE**
         to download the service account JSON file.
