@@ -660,7 +660,7 @@ export class ActionsOnGoogleTestManager {
     queriesLanguage?: string
   ) {
     const fileContents = fs.readFileSync(yamlFile, 'utf8');
-    const yamlData = yaml.safeLoad(fileContents) as MatchIntentsTestSuite;
+    const yamlData = yaml.load(fileContents) as MatchIntentsTestSuite;
     expect(yamlData, `failed to read file ${yamlFile}`).to.exist;
     expect(yamlData!['testCases'], `Missing 'testCases' from ${yamlFile}`).to
       .exist;
